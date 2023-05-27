@@ -1,0 +1,72 @@
+#pragma kernel CSMain
+
+struct Cube
+{
+    float3 position;
+    float4 color;
+};
+
+RWStructuredBuffer<Cube> cubeBuffer;
+int nCubes;
+
+int CountYellowNeighbors(uint cubeIndex)
+{
+    int count = 0;
+    int2 cubeCoords = int2(cubeIndex % nCubes, cubeIndex / nCubes);
+    
+    for (int i = -1; i <= 1; i++)
+    {
+        for (int j = -1; j <= 1; j++)
+        {
+            if (i == 0 && j == 0)
+                continue;
+
+            int2 neighborCoords = cubeCoords + int2(i, j);
+            
+            if (neighborCoords.x >= 0 && neighborCoords.x < nCubes && neighborCoords.y >= 0 && neighborCoords.y < nCubes)
+            {
+                uint neighborIndex = (uint)(neighborCoords.y * nCubes + neighborCoords.x);
+                float4 neighborColor = cubeBuffer[neighborIndex].color;
+                if (neighborColor.r == 1 && neighborColor.g != 1 && neighborColor.b != 1) // Comparação do componente "b" para amarelo
+                {
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
+}
+
+[numthreads(8, 8, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    int index = id.x + id.y * nCubes;
+    
+    int x = index % nCubes;
+    int y = index / nCubes;
+    
+    int count = CountYellowNeighbors(index);
+    
+    Cube currentCube = cubeBuffer[index];
+    Cube nextCube = currentCube;
+    
+    // Aplicar as regras do jogo da vida
+    if (currentCube.color.r == 1 && currentCube.color.g != 1 && currentCube.color.b != 1) // Cubo vivo (amarelo)
+    {
+        if (count < 2 || count > 3)
+        {
+            // Cubo morre de solidão ou superpopulação
+            nextCube.color = float4(1, 1, 1, 1); // Cor branca
+        }
+    }
+    else // Cubo morto (branco)
+    {
+        if (count == 3)
+        {
+            // Cubo nasce por reprodução
+            nextCube.color = float4(1.000f, 0.922f, 0.016f, 1.000f); // Cor amarela
+        }
+    }
+    
+    cubeBuffer[index] = nextCube;
+}
