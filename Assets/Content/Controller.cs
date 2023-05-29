@@ -60,7 +60,7 @@ public class Controller : MonoBehaviour
 
     private void OnGUI() 
     {
-        if (GUI.Button(new Rect(0, 0, 100, 50), "Create CPU"))
+        if (GUI.Button(new Rect(0, 0, 100, 50), "Create"))
         {
             CreateCubes();
         }
