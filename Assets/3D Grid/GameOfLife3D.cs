@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Controller : MonoBehaviour
+public class GameOfLife3D : MonoBehaviour
 {
     struct Cube
     {
@@ -84,24 +84,37 @@ public class Controller : MonoBehaviour
 
     private void CreateCubes()
     {
-        data = new Cube[nCubes * nCubes];
-        gameObjects = new GameObject[nCubes * nCubes];
+        int cubeCount = nCubes * nCubes * nCubes;
+        data = new Cube[cubeCount];
+        gameObjects = new GameObject[cubeCount];
 
-        for(int i = 0; i < nCubes; i++)
+        int index = 0;
+
+        for (int x = 0; x < nCubes; x++)
         {
-            float offsetX = (-nCubes / 2 + i);
-            for(int j = 0; j < nCubes; j++)
-            {
-                float offsetZ = (-nCubes / 2 + j);
-                GameObject go = GameObject.Instantiate(cubePrefab, 
-                    new Vector3(offsetX * 1.1f, 0, offsetZ * 1.1f), 
-                    Quaternion.identity);
+            float offsetX = (-nCubes / 2 + x);
 
-                go.GetComponent<MeshRenderer>().material.SetColor("_Color", _colorInic);
-                gameObjects[j * nCubes + i] = go;
-                data[i * nCubes + j] = new Cube();
-                data[i * nCubes + j].position = go.transform.position;
-                data[i * nCubes + j].color = _colorInic;
+            for (int y = 0; y < nCubes; y++)
+            {
+                float offsetY = (-nCubes / 2 + y);
+
+                for (int z = 0; z < nCubes; z++)
+                {
+                    float offsetZ = (-nCubes / 2 + z);
+
+                    GameObject go = GameObject.Instantiate(cubePrefab,
+                        new Vector3(offsetX * 1.1f, offsetY * 1.1f, offsetZ * 1.1f),
+                        Quaternion.identity);
+
+                    go.GetComponent<MeshRenderer>().material.SetColor("_Color", _colorInic);
+                    gameObjects[index] = go;
+
+                    data[index] = new Cube();
+                    data[index].position = go.transform.position;
+                    data[index].color = _colorInic;
+
+                    index++;
+                }
             }
         }
     }
@@ -125,21 +138,21 @@ public class Controller : MonoBehaviour
 
     private void SimulateGameOfLifeCPU()
     {
-        bool[] nextGeneration = new bool[nCubes * nCubes];
+        bool[] nextGeneration = new bool[nCubes * nCubes * nCubes];
 
         for (int i = 0; i < gameObjects.Length; i++)
         {
             int aliveNeighbors = CountYellowNeighbors(gameObjects[i]);
-            
-            if(gameObjects[i].GetComponent<MeshRenderer>().material.color == _colorInic)
+
+            if (gameObjects[i].GetComponent<MeshRenderer>().material.GetColor("_Color") == _colorInic)
                 nextGeneration[i] = aliveNeighbors == 3;
             else
                 nextGeneration[i] = aliveNeighbors == 2 || aliveNeighbors == 3;
         }
 
-        for (int i = 0; i < nCubes * nCubes; i++)
+        for (int i = 0; i < nCubes * nCubes * nCubes; i++)
         {
-            if(nextGeneration[i])
+            if (nextGeneration[i])
                 gameObjects[i].GetComponent<MeshRenderer>().material.SetColor("_Color", Color.yellow);
             else
                 gameObjects[i].GetComponent<MeshRenderer>().material.SetColor("_Color", _colorInic);
@@ -151,22 +164,26 @@ public class Controller : MonoBehaviour
         int count = 0;
         Vector3 cubePosition = cube.transform.position;
 
-        for (int i = -1; i <= 1; i++)
+        for (int x = -1; x <= 1; x++)
         {
-            for (int j = -1; j <= 1; j++)
+            for (int y = -1; y <= 1; y++)
             {
-                if (i == 0 && j == 0)
-                    continue;
-
-                Vector3 neighborPosition = cubePosition + new Vector3(i * 1.1f, 0f, j * 1.1f);
-                Collider[] colliders = Physics.OverlapSphere(neighborPosition, 0.1f);
-
-                foreach (var collider in colliders)
+                for (int z = -1; z <= 1; z++)
                 {
-                    GameObject neighborCube = collider.gameObject;
-                    if (neighborCube != cube && neighborCube.GetComponent<MeshRenderer>().material.color == Color.yellow)
+                    if (x == 0 && y == 0 && z == 0)
+                        continue;
+
+                    Vector3 neighborPosition = cubePosition + new Vector3(x * 1.1f, y * 1.1f, z * 1.1f);
+
+                    Collider[] colliders = Physics.OverlapSphere(neighborPosition, 0.1f);
+
+                    foreach (var collider in colliders)
                     {
-                        count++;
+                        GameObject neighborCube = collider.gameObject;
+                        if (neighborCube != cube && neighborCube.GetComponent<MeshRenderer>().material.GetColor("_Color") == Color.yellow)
+                        {
+                            count++;
+                        }
                     }
                 }
             }
@@ -175,6 +192,7 @@ public class Controller : MonoBehaviour
         return count;
     }
 
+    
     private void SimulateGameOfLifeGPU()
     {
         ComputeBuffer cubeBuffer = new ComputeBuffer(data.Length, sizeof(float) * 7);
