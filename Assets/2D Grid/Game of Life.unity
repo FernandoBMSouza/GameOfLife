@@ -168,8 +168,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   computeShader: {fileID: 7200000, guid: 3b057a14192e02d439363c472b66a1b9, type: 3}
   cubePrefab: {fileID: 275220713982003495, guid: 1039769548afbc64b8b1bea674f37efb, type: 3}
-  nCubes: 200
-  timeInterval: 1
+  nCubes: 100
+  timeInterval: 0.1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
