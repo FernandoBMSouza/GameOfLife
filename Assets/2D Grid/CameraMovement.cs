@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
-    public float moveSpeed = 10f;
-    public float rotationSpeed = 50f;
+    [SerializeField] private float axisSpeed = 100f, rotationAndZoomSpeed = 500f;
 
-    public Vector3 initialPosition;
-    public Quaternion initialRotation;
+    [SerializeField] private Vector3 initialPosition;
+    [SerializeField] private Quaternion initialRotation;
 
     private bool enableCamera;
 
@@ -26,19 +25,24 @@ public class CameraMovement : MonoBehaviour
         
         if(enableCamera)
         {
-            // Movimento horizontal
+            // Horizontal
             float horizontal = Input.GetAxis("Horizontal");
-            transform.Translate(Vector3.right * horizontal * moveSpeed * Time.deltaTime);
+            transform.Translate(Vector3.right * horizontal * axisSpeed * Time.deltaTime);
 
-            // Movimento vertical
+            // Vertical
             float vertical = Input.GetAxis("Vertical");
-            transform.Translate(Vector3.forward * vertical * moveSpeed * Time.deltaTime);
+            transform.Translate(Vector3.up * vertical * axisSpeed * Time.deltaTime);
 
-            // Rotação com o mouse
+            // Zoom In
+            if (Input.GetKeyDown(KeyCode.Z))
+                transform.Translate(Vector3.forward * rotationAndZoomSpeed * Time.deltaTime);
+            // Zoom Out
+            if (Input.GetKeyDown(KeyCode.X))
+                transform.Translate(Vector3.back * rotationAndZoomSpeed * Time.deltaTime);
+
+            // Rotation
             float rotationX = Input.GetAxis("Mouse X");
-            float rotationY = Input.GetAxis("Mouse Y");
-            transform.Rotate(Vector3.up * rotationX * rotationSpeed * Time.deltaTime);
-            transform.Rotate(Vector3.left * rotationY * rotationSpeed * Time.deltaTime);
+            transform.Rotate(Vector3.up * rotationX * rotationAndZoomSpeed * Time.deltaTime);
         }
     }
 }

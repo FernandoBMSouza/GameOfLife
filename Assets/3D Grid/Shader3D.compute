@@ -62,7 +62,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     {
         if (count < 2 || count > 3)
         {
-            nextCube.color = float4(1, 1, 1, 1); // Cor branca
+            nextCube.color = float4(1, 1, 1, 0); // Cor branca, mas com alfa zerado
         }
     }
     else

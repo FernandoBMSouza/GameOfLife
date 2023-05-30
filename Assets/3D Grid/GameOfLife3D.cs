@@ -42,6 +42,7 @@ public class GameOfLife3D : MonoBehaviour
             if (timer >= timeInterval)
             {
                 SimulateGameOfLifeCPU();
+                Debug.Log("CPU Timer: " + (timer - timeInterval));
                 timer = 0f;
             } 
         }
@@ -53,6 +54,7 @@ public class GameOfLife3D : MonoBehaviour
             if (timer >= timeInterval)
             {
                 SimulateGameOfLifeGPU();
+                Debug.Log("GPU Timer: " + (timer - timeInterval));
                 timer = 0f;
             }
         }
@@ -65,7 +67,7 @@ public class GameOfLife3D : MonoBehaviour
             CreateCubes();
         }
 
-        if (GUI.Button(new Rect(110, 0, 100, 50), "Pause CPU/GPU Simulation"))
+        if (GUI.Button(new Rect(110, 0, 100, 50), "Stop"))
         {
             isCPU = false;
             isGPU = false;
@@ -152,10 +154,15 @@ public class GameOfLife3D : MonoBehaviour
 
         for (int i = 0; i < nCubes * nCubes * nCubes; i++)
         {
+            gameObjects[i].GetComponent<MeshRenderer>().enabled = nextGeneration[i];
             if (nextGeneration[i])
+            {
                 gameObjects[i].GetComponent<MeshRenderer>().material.SetColor("_Color", Color.yellow);
+            }
             else
+            {
                 gameObjects[i].GetComponent<MeshRenderer>().material.SetColor("_Color", _colorInic);
+            }
         }
     }
 
@@ -200,17 +207,26 @@ public class GameOfLife3D : MonoBehaviour
         computeShader.SetBuffer(0, "cubeBuffer", cubeBuffer);
         computeShader.SetInt("nCubes", nCubes);
 
-        computeShader.GetKernelThreadGroupSizes(0, out uint threadGroupSizeX, out uint threadGroupSizeY, out _);
-        computeShader.Dispatch(0, Mathf.CeilToInt(nCubes / (float)threadGroupSizeX), Mathf.CeilToInt(nCubes / (float)threadGroupSizeY), 1);
+        computeShader.GetKernelThreadGroupSizes(0, out uint threadGroupSizeX, out uint threadGroupSizeY, out uint threadGroupSizeZ);
+        computeShader.Dispatch(0, Mathf.CeilToInt(nCubes / (float)threadGroupSizeX), Mathf.CeilToInt(nCubes / (float)threadGroupSizeY), Mathf.CeilToInt(nCubes / (float)threadGroupSizeZ));
 
         cubeBuffer.GetData(data);
 
         for (int i = 0; i < gameObjects.Length; i++)
         {
-            gameObjects[i].GetComponent<MeshRenderer>().material.SetColor("_Color", data[i].color);
+            if (data[i].color.r == 1 && data[i].color.g == 1 && data[i].color.b == 1) // Cubos brancos
+            {
+                gameObjects[i].SetActive(false); // Torna o cubo invisível
+            }
+            else
+            {
+                gameObjects[i].SetActive(true); // Torna o cubo visível
+                gameObjects[i].GetComponent<MeshRenderer>().material.SetColor("_Color", data[i].color);
+            }
         }
 
         cubeBuffer.Dispose();
     }
+
 
 }

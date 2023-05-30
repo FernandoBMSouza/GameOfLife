@@ -312,8 +312,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5eca97b7451b67541a8f25372ef3d1f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  rotationSpeed: 100
+  axisSpeed: 20
+  rotationAndZoomSpeed: 250
   initialPosition: {x: 0, y: 0, z: -30}
   initialRotation: {x: 0, y: 0, z: 0, w: 1}
 --- !u!1 &1838603613
