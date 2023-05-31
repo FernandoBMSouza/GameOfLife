@@ -1,0 +1,61 @@
+#pragma kernel CSMain
+
+RWTexture2D<float4> Result;
+int Width;
+int Height;
+
+int CountAliveNeighbors(int2 pixelPos, uint2 texSize)
+{
+    int aliveCount = 0;
+
+    for (int i = -1; i <= 1; i++)
+    {
+        for (int j = -1; j <= 1; j++)
+        {
+            if (i == 0 && j == 0)
+                continue;
+
+            int2 neighborPos = pixelPos + int2(i, j);
+
+            if (neighborPos.x >= 0 && neighborPos.x < texSize.x && neighborPos.y >= 0 && neighborPos.y < texSize.y)
+            {
+                float4 neighborColor = Result[uint2(neighborPos.x, neighborPos.y)];
+                if (neighborColor.r != 0) // aliveColor
+                    aliveCount++;
+            }
+        }
+    }
+
+    return aliveCount;
+}
+
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint2 texSize = int2(Width, Height);
+
+    int2 pixelPos = int2(id.x, id.y);
+    float4 pixelColor = Result[id.xy];
+
+    if (pixelPos.x >= 0 && pixelPos.x < texSize.x && pixelPos.y >= 0 && pixelPos.y < texSize.y)
+    {
+        int aliveNeighbors = CountAliveNeighbors(pixelPos, texSize);
+        
+        if (pixelColor.r != 0)
+        {
+            if (aliveNeighbors == 2 || aliveNeighbors == 3)
+                Result[id.xy] = float4(1.000f, 0.922f, 0.016f, 1.000f);
+            else
+                Result[id.xy] = float4(0, 0, 0, 1);
+        }
+        else
+        {
+            // Regra de nascimento
+            if (aliveNeighbors == 3)
+                Result[id.xy] = float4(1.000f, 0.922f, 0.016f, 1.000f);
+            else
+                Result[id.xy] = float4(0, 0, 0, 1);
+        }
+    }
+}
