@@ -14,7 +14,6 @@ public class GameOfLife2D : MonoBehaviour
     private Texture2D texture;
     public ComputeShader computeShader;
 
-
     private void Start()
     {
         GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);

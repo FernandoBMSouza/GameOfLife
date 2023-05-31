@@ -51,7 +51,6 @@ void CSMain(uint3 id : SV_DispatchThreadID)
         }
         else
         {
-            // Regra de nascimento
             if (aliveNeighbors == 3)
                 Result[id.xy] = float4(1.000f, 0.922f, 0.016f, 1.000f);
             else
