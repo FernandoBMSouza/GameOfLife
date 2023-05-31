@@ -1,19 +1,23 @@
+Cáculos Feitos na Cena GameOfLife2D: 
+(Para calcular nós desbloqueamos o time interval no update do código)
+
 + 100x100
-	CPU: 0,007237
-	GPU: 0,000636
-	Speedup: 11,37893081761006
+	CPU Timer: 0,0276829	
+	GPU Timer: 0,0033757
+	Speedup: 8,2
 
 + 200x200
-	CPU: 0,010066
-	GPU: 0,011303
-	Speedup: 0,8905600283110679
+	CPU Timer: 0,1064819
+	GPU Timer: 0,0034637
+	Speedup: 30,7
 
 + 500x500
-	CPU: 0,027986
-	GPU: 0,029709
-	Speedup: 0,9420041064997139
-
+	CPU Timer: 0,3333333
+	GPU Timer: 0,001994
+	Speedup: 167,2
+	
 +1000x1000
-	CPU: 0,017188
-	GPU: 0,015000
-	Speedup: 1,145866666666667
+	CPU Timer: 0,3333333
+	GPU Timer: 0,0108159
+	Speedup: 30,8
+	

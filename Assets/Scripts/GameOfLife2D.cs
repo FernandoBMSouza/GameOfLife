@@ -35,7 +35,7 @@ public class GameOfLife2D : MonoBehaviour
             if (timer >= timeInterval)
             {
                 ProcessCPU();
-                Debug.Log("CPU Timer: " + (timer - timeInterval));
+                //Debug.Log("CPU Timer: " + (timer - timeInterval));
                 timer = 0f;
             }
         }
@@ -47,7 +47,7 @@ public class GameOfLife2D : MonoBehaviour
             if (timer >= timeInterval)
             {
                 ProcessGPU();
-                Debug.Log("GPU Timer: " + (timer - timeInterval));
+                //Debug.Log("GPU Timer: " + (timer - timeInterval));
                 timer = 0f;
             } 
         }
